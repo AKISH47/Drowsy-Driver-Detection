@@ -23,7 +23,5 @@
    2. If not displaying results press reset or reboot button
 ![Screenshot 2024-10-30 at 8 57 55 PM](https://github.com/user-attachments/assets/bc937236-31c6-46dc-9e11-7f8528fcdabb)
 
-## Step 5 - 3d print case for the Device
-  
-## Done!! 
+Done!!!
 
