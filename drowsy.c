@@ -1,8 +1,37 @@
+/* Edge Impulse Arduino examples
+ * Copyright (c) 2022 EdgeImpulse Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+// These sketches are tested with 2.0.4 ESP32 Arduino Core
+// https://github.com/espressif/arduino-esp32/releases/tag/2.0.4
+
 /* Includes ---------------------------------------------------------------- */
 #include <drs_inferencing.h>
 #include "edge-impulse-sdk/dsp/image/image.hpp"
-
+int speakerPin = D3;
+const int buzzerFrequency = 10000;
 #include "esp_camera.h"
+#include <HardwareSerial.h>
+HardwareSerial SerialPort(1); // use UART2
+
 
 // Select camera model - find more camera models in camera_pins.h file here
 // https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/Camera/CameraWebServer/camera_pins.h
@@ -43,7 +72,7 @@
 static bool debug_nn = false; // Set this to true to see e.g. features generated from the raw signal
 static bool is_initialised = false;
 uint8_t *snapshot_buf; //points to the output of the capture
-int buzzerPin = 9;
+
 
 static camera_config_t camera_config = {
     .pin_pwdn = PWDN_GPIO_NUM,
@@ -90,8 +119,9 @@ void setup()
 {
     // put your setup code here, to run once:
     Serial.begin(115200);
-    pinMode(buzzerPin, OUTPUT);
-   
+    SerialPort.begin(115200, SERIAL_8N1, 7, 6); 
+    
+    pinMode(speakerPin, OUTPUT);
     //comment out the below line to start inference immediately after upload
     while (!Serial);
     Serial.println("Edge Impulse Inferencing Demo");
@@ -164,16 +194,17 @@ void loop()
                 bb.y,
                 bb.width,
                 bb.height);
-        if (bb.label == "yawning" || bb.label == "nodding" || bb.label == "awake") { 
-            ei_printf("tired");          // Wait for 1 second before playing the next tone
-            tone(buzzerPin, 50);                    
-            delay(50);
-            noTone(buzzerPin);
-            delay(50);
+        if (bb.label == "yawning" || bb.label == "nodding") { 
+             ei_printf("tired");          // Wait for 1 second before playing the next tone
+             tone(speakerPin, buzzerFrequency); // Generate PWM with set frequency
+             delay(1000);                       // Turn on sound for half a second
+             noTone(speakerPin);                // Stop the sound
+             delay(1000);     
             // Turn the buzzer OFF for 1 second
             //digitalWrite(buzzerPin, LOW);   
                              
         }
+      
     }
 
     // Print the prediction results (classification)
@@ -273,3 +304,84 @@ void ei_camera_deinit(void) {
     is_initialised = false;
     return;
 }
+
+
+/**
+ * @brief      Capture, rescale and crop image
+ *
+ * @param[in]  img_width     width of output image
+ * @param[in]  img_height    height of output image
+ * @param[in]  out_buf       pointer to store output image, NULL may be used
+ *                           if ei_camera_frame_buffer is to be used for capture and resize/cropping.
+ *
+ * @retval     false if not initialised, image captured, rescaled or cropped failed
+ *
+ */
+bool ei_camera_capture(uint32_t img_width, uint32_t img_height, uint8_t *out_buf) {
+    bool do_resize = false;
+
+    if (!is_initialised) {
+        ei_printf("ERR: Camera is not initialized\r\n");
+        return false;
+    }
+
+    camera_fb_t *fb = esp_camera_fb_get();
+
+    if (!fb) {
+        ei_printf("Camera capture failed\n");
+        return false;
+    }
+
+   bool converted = fmt2rgb888(fb->buf, fb->len, PIXFORMAT_JPEG, snapshot_buf);
+
+   esp_camera_fb_return(fb);
+
+   if(!converted){
+       ei_printf("Conversion failed\n");
+       return false;
+   }
+
+    if ((img_width != EI_CAMERA_RAW_FRAME_BUFFER_COLS)
+        || (img_height != EI_CAMERA_RAW_FRAME_BUFFER_ROWS)) {
+        do_resize = true;
+    }
+
+    if (do_resize) {
+        ei::image::processing::crop_and_interpolate_rgb888(
+        out_buf,
+        EI_CAMERA_RAW_FRAME_BUFFER_COLS,
+        EI_CAMERA_RAW_FRAME_BUFFER_ROWS,
+        out_buf,
+        img_width,
+        img_height);
+    }
+    
+
+
+    return true;
+}
+
+static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
+{
+    // we already have a RGB888 buffer, so recalculate offset into pixel index
+    size_t pixel_ix = offset * 3;
+    size_t pixels_left = length;
+    size_t out_ptr_ix = 0;
+
+    while (pixels_left != 0) {
+        // Swap BGR to RGB here
+        // due to https://github.com/espressif/esp32-camera/issues/379
+        out_ptr[out_ptr_ix] = (snapshot_buf[pixel_ix + 2] << 16) + (snapshot_buf[pixel_ix + 1] << 8) + snapshot_buf[pixel_ix];
+
+        // go to the next pixel
+        out_ptr_ix++;
+        pixel_ix+=3;
+        pixels_left--;
+    }
+    // and done!
+    return 0;
+}
+
+#if !defined(EI_CLASSIFIER_SENSOR) || EI_CLASSIFIER_SENSOR != EI_CLASSIFIER_SENSOR_CAMERA
+#error "Invalid model for current sensor"
+#endif
