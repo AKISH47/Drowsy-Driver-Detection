@@ -5,10 +5,8 @@
 
 ## Materials
   1. Xiao esp32s3 Sense
-  2. Buzzer
+  2. Xiao expansion board
   3. 3d design for case
-  4. Jumper Cables
-  5. Sodlering Iron & other soldering materials
 
 ## Step 1 - Edge Impulse Model Training
    1. Used Roboflow dataset and uploaded onto Edge Impulse
@@ -19,9 +17,9 @@
   2. Deploy Model as Arduino Library
 
 ## Step 3 - Upload Code File --> drowsy.c
-
-## Step 4 - Solder Buzzer onto Xiao Esp32s3 sense
+   1. Uploading will take some time please be patient!
+   2. If not displaying results press reset or reboot button
 
 ## Step 5 - 3d print case for the Device
-
+  
 ## Done!! 
