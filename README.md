@@ -7,6 +7,7 @@
   1. Xiao esp32s3 Sense
   2. Xiao expansion board
  3. 3d design for case
+    
  ![Screenshot 2024-10-30 at 9 03 18 PM](https://github.com/user-attachments/assets/d79a8414-7aa7-4bb6-a70e-e047fd1166b8)
 ## Step 1 - Edge Impulse Model Training
    1. Used Roboflow dataset and uploaded onto Edge Impulse
