@@ -22,7 +22,9 @@
 ## Step 3 - Upload Code File --> drowsy.c
    1. Uploading will take some time please be patient!
    2. If not displaying results press reset or reboot button
+   3. We are using built-in passive buzzer on the xiao expansion board
 ![Screenshot 2024-10-30 at 8 57 55 PM](https://github.com/user-attachments/assets/bc937236-31c6-46dc-9e11-7f8528fcdabb)
 
 Done!!!
 
+![PHOTO-2024-10-31-21-39-24](https://github.com/user-attachments/assets/f992d76f-2abc-43dc-8848-05e13ac021a2)
