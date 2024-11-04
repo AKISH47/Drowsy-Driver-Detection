@@ -9,7 +9,7 @@
  3. 3d design for case
     
  ![Screenshot 2024-10-30 at 9 03 18 PM](https://github.com/user-attachments/assets/d79a8414-7aa7-4bb6-a70e-e047fd1166b8)
-## Step 1 - Edge Impulse Model Training
+## Step 1 - Edge Impulse Model Training -- Model Link for training: https://studio.edgeimpulse.com/public/527599/live
    1. Used Roboflow dataset and uploaded onto Edge Impulse
    2. Ran basic model training on Edge Impulse
 ![Screenshot 2024-10-30 at 9 01 50 PM](https://github.com/user-attachments/assets/68dae959-e43a-475d-9cfc-d542705e6360)
