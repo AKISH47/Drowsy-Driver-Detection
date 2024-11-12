@@ -2,7 +2,7 @@
 ## Problem Statement: Many accidents occur every year relating to drowsy drivers. When tired drivers drive, they can get into accidents.
 
 ## Solution: Use xiao esp32s3 sense for model deployment. If the driver is drowsy, use a buzzer to make a beep sound. Else, do not make a sound.
-
+## Source/reference of images in Edge Impulse model training: https://universe.roboflow.com/fatigue-detection-lqzpj/fatigue_detection-qqsld 
 ## Materials
   1. Xiao esp32s3 Sense
   2. Xiao expansion board
@@ -12,6 +12,7 @@
 ## Step 1 - Edge Impulse Model Training -- Model Link for training: https://studio.edgeimpulse.com/public/527599/live
    1. Used Roboflow dataset and uploaded onto Edge Impulse
    2. Ran basic model training on Edge Impulse
+   3. Source/reference of images in Edge Impulse model training: https://universe.roboflow.com/fatigue-detection-lqzpj/fatigue_detection-qqsld 
 ![Screenshot 2024-10-30 at 9 01 50 PM](https://github.com/user-attachments/assets/68dae959-e43a-475d-9cfc-d542705e6360)
 ## Step 2 - Deploy Model as Arduino Library
   1. Make sure Model is int8 quantanized format before deploying
